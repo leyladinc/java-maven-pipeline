@@ -33,6 +33,13 @@ jobs:
         run: docker build -t java-maven-pipeline . 
       - name: Run container and test
         run: |
-          docker run -d -p 8080:8080 java-maven-pipeline
-          curl --retry 10 --retry-connrefused --retry-delay 3 http://localhost:8080
+          docker run -d --name app -p 8080:8080 java-maven-pipeline
+          for i in {1..10}; do
+            if curl -fsS http://localhost:8080; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker logs app
+          exit 1
 
